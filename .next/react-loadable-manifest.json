@@ -1,0 +1,20 @@
+{
+  "../node_modules/@p5-wrapper/next/dist/next.js -> @p5-wrapper/react": {
+    "id": "../node_modules/@p5-wrapper/next/dist/next.js -> @p5-wrapper/react",
+    "files": [
+      "static/chunks/node_modules_p5-wrapper_react_dist_component_react_js.js"
+    ]
+  },
+  "pages/p5_canvas/CanvasComponent.js -> @p5-wrapper/next": {
+    "id": "pages/p5_canvas/CanvasComponent.js -> @p5-wrapper/next",
+    "files": [
+      "static/chunks/node_modules_p5-wrapper_next_dist_next_js.js"
+    ]
+  },
+  "pages/p5_canvas/CanvasComponent2.js -> @p5-wrapper/next": {
+    "id": "pages/p5_canvas/CanvasComponent2.js -> @p5-wrapper/next",
+    "files": [
+      "static/chunks/node_modules_p5-wrapper_next_dist_next_js.js"
+    ]
+  }
+}
