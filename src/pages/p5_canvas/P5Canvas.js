@@ -5,12 +5,13 @@ const NextReactP5Wrapper = dynamic(
   { ssr: false }
 );
 
-export default function P5Canvas({ sketch, width = 600, height = 400, left = 0, top = 0 }) {
+export default function P5Canvas({ sketch, width = 600, height = 400, left = 0, top = 0, isVisible = true}) {
   const style = {
     position: 'fixed',
     left: `${left}px`,
     top: `${top}px`,
     zIndex: 1,
+    display: isVisible ? 'block' : 'none', // Toggle display based on visibility prop
   };
 
   return (
