@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import Header from "./navig_components/Header";
 import P5Canvas from './p5_canvas/P5Canvas';
-import { planeSketch, drawingSketch } from "./p5_canvas/sketches";
+import { planeSketch, drawingSketch, movingCircleSketch } from "./p5_canvas/sketches";
 import rehypeHighlight from "rehype-highlight";
 import 'highlight.js/styles/github.css';
 
@@ -74,9 +74,9 @@ export default function Repositories() {
           </li>
         ))}
       </ul>
-
-      <P5Canvas sketch={planeSketch} width={200} height={200} left={50} top={300} isVisible={isVisible} />
-      <P5Canvas sketch={drawingSketch} width={600} height={200} left={300} top={400} isVisible={isVisible} />
+          <P5Canvas sketch={movingCircleSketch} width={200} height={200} left={700} top={500} zIndex={-1} isVisible={isVisible} />
+         <P5Canvas sketch={planeSketch} width={200} height={200} left={50} top={300} zIndex={1} isVisible={isVisible} />
+         <P5Canvas sketch={drawingSketch} width={600} height={200} left={300} top={400}  zIndex={-1} isVisible={isVisible} />
     </div>
   );
 }

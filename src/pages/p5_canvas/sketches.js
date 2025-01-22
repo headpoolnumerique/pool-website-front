@@ -19,7 +19,7 @@ export const planeSketch = (p5, width, height) => {
 export const drawingSketch = (p5, width, height) => {
   p5.setup = () => {
     p5.createCanvas(width, height);
-    p5.background(0);
+    p5.background(255, 255, 255, 0);
     p5.strokeWeight(10);
     p5.colorMode(p5.HSB);
   };
@@ -29,3 +29,42 @@ export const drawingSketch = (p5, width, height) => {
     p5.line(p5.pmouseX, p5.pmouseY, p5.mouseX, p5.mouseY);
   };
 };
+
+
+
+export function movingCircleSketch(p5, width, height) {
+
+  let x = 25;
+
+  p5.setup = () => {
+    p5.createCanvas(width, height);
+    p5.colorMode(p5.HSB);
+    p5.textSize(20);
+    p5.noLoop();
+  };
+
+  p5.draw = () => {
+    p5.background(0);
+    p5.fill(x / 3, 90, 90);
+    p5.circle(x, p5.height / 2, 50);
+    x += 5;
+
+    if (x > p5.width + 25) {
+      x = -25;
+    }
+
+    p5.describe('circle moving to the right');
+  };
+
+  p5.mousePressed = () => {
+    if (p5.isLooping()) {
+      p5.noLoop();
+    } else {
+      p5.loop();
+    }
+  };
+
+  p5.keyPressed = () => {
+    p5.redraw();
+  };
+}

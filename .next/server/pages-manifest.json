@@ -2,10 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
   "/repositories": "pages/repositories.js",
-  "/cours": "pages/cours.js",
-  "/api/github": "pages/api/github.js",
   "/presentation": "pages/presentation.js",
-  "/cours-passeport": "pages/cours-passeport.js"
+  "/": "pages/index.js",
+  "/api/github": "pages/api/github.js"
 }
