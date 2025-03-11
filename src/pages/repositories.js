@@ -20,7 +20,7 @@ export default function Repositories() {
   useEffect(() => {
     const fetchRepositories = async () => {
       try {
-        const response = await fetch('/api/github');
+        const response = await fetch('/api/github-pool-repo');
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
         }

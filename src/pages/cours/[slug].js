@@ -16,7 +16,7 @@ export default function CourseDetails({ course }) {
       if (!course || !course.topics) return;
       
       try {
-        const response = await fetch(`/api/github`); 
+        const response = await fetch(`/api/github-pool-repo`); 
         
         if (!response.ok) {
           throw new Error("Failed to fetch GitHub repositories");

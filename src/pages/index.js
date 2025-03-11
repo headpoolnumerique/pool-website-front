@@ -9,7 +9,6 @@ import {
     bouncingBallSketch,
     planeSketch, 
     drawingSketch,
-    drawingSketch2, 
     movingCircleSketch,
     spiralSketch
 } from "./p5_canvas/sketches";
