@@ -2,6 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/api/github-p5-random-noise": "pages/api/github-p5-random-noise.js"
+  "/": "pages/index.js"
 }
