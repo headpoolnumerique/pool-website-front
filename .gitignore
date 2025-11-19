@@ -2,3 +2,5 @@
 /node_modules
 .next/
 /src/fonts
+src/styles/fonts/
+**/.DS_Store
