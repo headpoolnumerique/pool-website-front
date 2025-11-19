@@ -1,3 +1,134 @@
-body{
-  background-color: red;
+@font-face {
+  font-family: "CirrusCumulus";
+  src: url("fonts/CirrusCumulus.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "LiberationSans";
+  src: url("fonts/LiberationSans-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+}
+
+.header-container {
+  position: fixed;
+  width: 100vw;
+  z-index: 1000;
+}
+
+.header {
+  padding: 1rem;
+  background: white;
+}
+
+.nav-link {
+  margin: 0 1rem;
+  text-decoration: none;
+  color: inherit;
+  text-transform: uppercase;
+  font-family: LiberationSans;
+  color: black;
+}
+
+
+.button-container{
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 2vw;
+  right: 2vw;
+}
+
+.toggle-button {
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border: 1px solid;
+  cursor: pointer;
+  color: black;
+  font-family: 'LiberationSans';
+  text-transform: uppercase;
+}
+
+.logo-pool-container{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-pool-container h1{
+  font-family: CirrusCumulus;
+  font-size: 10vw;
+  font-weight: 100;
+}
+
+/* Courses Index Page */
+
+
+.courses-filter {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.courses-filter{
+  font-family: "LiberationSans";
+}
+
+.courses-list {
+  display: inline-block;
+}
+
+.course-card {
+  display: block;
+  margin-right: 3vw;
+}
+
+.course-card p{
+  font-family: 'LiberationSans';
+}
+
+.course-card h2 {
+  font-size: 4vw;
+}
+
+.course-card h2 span {
+  border-bottom: 1px solid;
+}
+
+.course-card h2, 
+.cours-passeport h1{
+  font-family: "CirrusCumulus";
+}
+
+.course-card img {
+  width: 200px;
+  height: auto;
+}
+
+.course-link {
+  color: blue;
+  text-decoration: underline;
+}
+
+.main-container{
+  padding-top: 9vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
+}
+
+
+.cours-passeport {
+  display: inline-grid;
+  width: 20vw;
 }

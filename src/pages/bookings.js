@@ -7,6 +7,7 @@ export default function Bookings({ bookings }) {
   return (
     <div style={{ padding: "2rem" }}>
       <Header />
+      <P5View />
       <h1>Bookings</h1>
       {bookings.length > 0 ? (
         <ul>

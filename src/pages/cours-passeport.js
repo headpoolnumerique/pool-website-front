@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PortableText } from "@portabletext/react";
 import client from "../../sanity";
 import Header from "./navig_components/Header"
+import P5View from './p5_canvas/P5View'; // Import the new P5View component
 
 export default function CoursPasseportPage({ coursPasseports }) {
   const [filter, setFilter] = useState("all"); // State to manage the filter
@@ -30,8 +31,9 @@ export default function CoursPasseportPage({ coursPasseports }) {
   return (
     <div>
       <Header />
+      <P5View />
+      <main className="main-container">
       <header>
-        <h1>Cours Passeport</h1>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
@@ -44,35 +46,38 @@ export default function CoursPasseportPage({ coursPasseports }) {
         </select>
       </header>
 
-      {/* Map over the filtered array and render each coursPasseport */}
-      {filteredPasseports.map((coursPasseport, index) => (
-        <div key={index} className="cours-passeport">
-          <h2>{coursPasseport.title || "Untitled"}</h2>
-          <span>
-            Start Date: {new Date(coursPasseport.startDate).toLocaleDateString()}
-          </span>
-          <span>
-            End Date: {new Date(coursPasseport.endDate).toLocaleDateString()}
-          </span>
-          <span>Status: {coursPasseport.status || "Unknown"}</span>
-          {/* Render block content */}
-          <div>
-            <PortableText value={coursPasseport.content || []} />
-          </div>
+      <div className="cours-passeport-main">
+        {/* Map over the filtered array and render each coursPasseport */}
+          {filteredPasseports.map((coursPasseport, index) => (
+            <div key={index} className="cours-passeport">
+              <h1>{coursPasseport.title || "Untitled"}</h1>
+              <span>
+                Start Date: {new Date(coursPasseport.startDate).toLocaleDateString()}
+              </span>
+              <span>
+                End Date: {new Date(coursPasseport.endDate).toLocaleDateString()}
+              </span>
+              <span>Status: {coursPasseport.status || "Unknown"}</span>
+              {/* Render block content */}
+              <div>
+                <PortableText value={coursPasseport.content || []} />
+              </div>
 
-          {/* Render topics */}
-          {coursPasseport.topics && (
-            <div>
-              <h3>Topics:</h3>
-              <ul>
-                {coursPasseport.topics.map((topic, idx) => (
-                  <li key={idx}>{topic}</li>
-                ))}
-              </ul>
+              {/* Render topics */}
+              {coursPasseport.topics && (
+                <div>
+                  <h3>Topics:</h3>
+                  <ul>
+                    {coursPasseport.topics.map((topic, idx) => (
+                      <li key={idx}>{topic}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      ))}
+          ))}
+      </div>
+      </main>
     </div>
   );
 }

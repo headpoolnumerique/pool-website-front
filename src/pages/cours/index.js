@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import client from "../../../sanity";
-
+import Header from "../navig_components/Header";
+import P5View from '../p5_canvas/P5View'; 
 
 export default function CoursesIndex({ cours }) {
   const [filter, setFilter] = useState("all"); // State to track selected filter
@@ -18,7 +19,6 @@ export default function CoursesIndex({ cours }) {
     } else if (startDate <= currentDate && endDate >= currentDate) {
       status = "ongoing";
     }
-
     return { ...cour, status };
   });
 
@@ -29,25 +29,17 @@ export default function CoursesIndex({ cours }) {
       : coursWithStatus.filter((cour) => cour.status === filter);
 
   return (
-    <div>
-      <section
-        style={{
-          padding: "1rem",
-          backgroundColor: "#f0f0f0",
-          textAlign: "center",
-        }}
-      >
-        <h1>All Courses</h1>
+    <div className="courses-container">
+      <Header />
+      <P5View />
+      <main className="main-container">
+      <section className="courses-header">
 
         {/* Dropdown for filtering courses */}
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          style={{
-            margin: "1rem",
-            padding: "0.5rem",
-            fontSize: "1rem",
-          }}
+          className="courses-filter"
         >
           <option value="all">All</option>
           <option value="upcoming">Upcoming</option>
@@ -56,27 +48,17 @@ export default function CoursesIndex({ cours }) {
         </select>
       </section>
 
-      <main style={{ padding: "1rem" }}>
+      <div className="courses-list">
         {/* Display filtered courses */}
         {filteredCourses.length > 0 ? (
           filteredCourses.map((cour) => (
-            <div key={cour.slug.current} style={{ marginBottom: "2rem" }}>
-              <h2>{cour.title}</h2>
-              <img
-                src={cour.image}
-                alt={cour.title}
-                style={{ width: "200px", height: "auto" }}
-              />
-              <p>
-                Start Date: {new Date(cour.startDate).toLocaleDateString()}
-              </p>
+            <div key={cour.slug.current} className="course-card">
+              <h2><span>{cour.title}</span></h2>
+              <p>Start Date: {new Date(cour.startDate).toLocaleDateString()}</p>
               <p>End Date: {new Date(cour.endDate).toLocaleDateString()}</p>
               <p>Status: {cour.status}</p>
               <p>Topics: {cour.topics?.join(", ")}</p>
-              <Link
-                href={`/cours/${cour.slug.current}`}
-                style={{ color: "blue", textDecoration: "underline" }}
-              >
+              <Link href={`/cours/${cour.slug.current}`} className="course-link">
                 View Details
               </Link>
             </div>
@@ -84,6 +66,7 @@ export default function CoursesIndex({ cours }) {
         ) : (
           <p>No courses found for the selected filter.</p>
         )}
+      </div>
       </main>
     </div>
   );

@@ -1,27 +1,50 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 
-export default function Header({toggleVisibility}) {
+export default function Header({ toggleVisibility }) {
+
+  const router = useRouter();
+  console.log(router.pathname, "--");
+
+  let dynamicStyling = () => {
+    if(router.pathname === "/"){
+      return {}
+    }else{
+      return {
+        borderBottom: "1px solid black"
+      }
+    }
+  }
+  
+
   return (
-    <div style={{position: "fixed", width: "100vw"}}>
+    <div className="header-container">
       {/* Header with Navigation */}
-      <header style={{ padding: "1rem", backgroundColor: "#f0f0f0", textAlign: "center" }}>
-      <button onClick={toggleVisibility} style={{ padding: "0.5rem 1rem", backgroundColor: "#f4f4f4", border: "1px solid", cursor: "pointer" }}>
-        Toggle P5 Components
-      </button>
+      <header 
+      style={dynamicStyling()}
+      className="header">
+        <div className="button-container">
+          <button onClick={toggleVisibility} className="toggle-button">
+            TOGGLE VISUALS
+          </button>
+        </div>
         <nav>
-        <Link href="/cours" style={{ margin: "0 1rem" }}>
+          <div>
+            <img src="./public/logo_pool.jpeg" />
+          </div>
+          <Link href="/cours" className="nav-link">
             Cours
           </Link>
-          <Link href="/cours-passeport" style={{ margin: "0 1rem" }}>
+          <Link href="/cours-passeport" className="nav-link">
             Cours Passeport
           </Link>
-          <Link href="/presentation" style={{ margin: "0 1rem" }}>
+          <Link href="/presentation" className="nav-link">
             Presentation
           </Link>
-          <Link href="/repositories" style={{ margin: "0 1rem" }}>
+          <Link href="/repositories" className="nav-link">
             Repositories
           </Link>
-          <Link href="/bookings" style={{ margin: "0 1rem" }}>
+          <Link href="/bookings" className="nav-link">
             Bookings
           </Link>
         </nav>
