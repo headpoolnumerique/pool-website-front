@@ -4,3 +4,5 @@
 /src/fonts
 src/styles/fonts/
 **/.DS_Store
+out/
+/out
