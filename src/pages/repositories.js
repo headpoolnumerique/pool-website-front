@@ -2,18 +2,15 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import Header from "./navig_components/Header";
 import rehypeHighlight from "rehype-highlight";
-import P5Canvas from './p5_canvas/P5Canvas';
-import P5View from './p5_canvas/P5View';
 import "highlight.js/styles/github.css";
-import client from "../../sanity";
+import Seo from "../components/Seo";
 
-export default function Repositories({ iframeLinks }) {
+export default function Repositories() {
   const [repositories, setRepositories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [readmes, setReadmes] = useState({});
   const [openRepo, setOpenRepo] = useState(null);
-  const [showP5, setShowP5] = useState(true); // <-- slider state
 
   const toggleRepo = (id) => {
     setOpenRepo((prev) => (prev === id ? null : id));
@@ -32,7 +29,6 @@ export default function Repositories({ iframeLinks }) {
         setLoading(false);
       }
     };
-
     fetchRepositories();
   }, []);
 
@@ -42,78 +38,51 @@ export default function Repositories({ iframeLinks }) {
         const response = await fetch(
           `https://raw.githubusercontent.com/${repo.owner.login}/${repo.name}/${repo.default_branch}/README.md`
         );
-        const readme = response.ok
-          ? await response.text()
-          : "README not available";
+        const readme = response.ok ? await response.text() : "README not available";
         setReadmes((prev) => ({ ...prev, [repo.id]: readme }));
       } catch {
-        setReadmes((prev) => ({
-          ...prev,
-          [repo.id]: "Error fetching README",
-        }));
+        setReadmes((prev) => ({ ...prev, [repo.id]: "Error fetching README" }));
       }
     };
-
     repositories.forEach((repo) => fetchReadme(repo));
   }, [repositories]);
 
   return (
     <div>
+      <Seo
+        title="Repositories"
+        description="GitHub repositories from Head Digital Pool"
+        url="https://head-digital-pool.ch/repositories"
+      />
       <Header />
-
       <main className="main-container">
         <h1>{loading ? "Loading Repositories..." : "Repositories with Topics"}</h1>
-
         {error && <p className="error_message">Error: {error}</p>}
         {!loading && !error && repositories.length === 0 && (
           <p>No repositories found with topics.</p>
         )}
-
         <ul className="repo-list">
-          {!loading &&
-            !error &&
-            repositories.map((repo) => (
-              <li key={repo.id} className="repo-card">
-                <div
-                  className="repo-title"
-                  onClick={() => toggleRepo(repo.id)}
-                >
-                  {repo.name}
+          {!loading && !error && repositories.map((repo) => (
+            <li key={repo.id} className="repo-card">
+              <div className="repo-title" onClick={() => toggleRepo(repo.id)}>
+                {repo.name}
+              </div>
+              {openRepo === repo.id && (
+                <div className="repo-readme">
+                  <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                    {readmes[repo.id]}
+                  </ReactMarkdown>
                 </div>
-
-                {openRepo === repo.id && (
-                  <div className="repo-readme">
-                    <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-                      {readmes[repo.id]}
-                    </ReactMarkdown>
-                  </div>
-                )}
-              </li>
-            ))}
+              )}
+            </li>
+          ))}
         </ul>
       </main>
-
     </div>
   );
 }
 
+// No getStaticProps needed — all data is fetched client-side
 export async function getStaticProps() {
-  try {
-    const iframeLinks = await client.fetch(`*[_type == "iframelinks"]{
-      _id,
-      links[]{ url }
-    }`);
-
-    return {
-      props: {
-        iframeLinks: iframeLinks || [],
-      },
-      revalidate: 60,
-    };
-  } catch (error) {
-    console.error("Failed to fetch iframe links:", error);
-    return {
-      props: { iframeLinks: [] },
-    };
-  }
+  return { props: {} };
 }

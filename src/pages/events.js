@@ -1,48 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PortableText } from "@portabletext/react";
 import client from "../../sanity";
-
 import Header from "./navig_components/Header";
 import ImgSliderWrapper from "./other_components/ImgSliderWrapper";
+import Seo from "../components/Seo";
 
-export default function EventsPage({ events, iframeLinks }) {
-  const [filter, setFilter] = useState("all");
-  const [openDropdowns, setOpenDropdowns] = useState({}); // track open state per event
+const formatDate = (date) => {
+  if (!date) return "Unknown";
+  return new Date(date).toLocaleDateString("en-GB");
+};
 
-  // Add event status (upcoming / ongoing / past)
-  const eventsWithStatus = events.map((event) => {
+const addStatus = (items) =>
+  items.map((item) => {
     const now = new Date();
-    const start = new Date(event.startDate);
-    const end = new Date(event.endDate);
-
+    const start = new Date(item.startDate);
+    const end = new Date(item.endDate);
     let status = "past";
     if (start > now) status = "upcoming";
     else if (start <= now && end >= now) status = "ongoing";
-
-    return { ...event, status };
+    return { ...item, status };
   });
 
+export default function EventsPage({ events: staticEvents }) {
+  const [filter, setFilter] = useState("all");
+  const [openDropdowns, setOpenDropdowns] = useState({});
+  const [events, setEvents] = useState(staticEvents);
+
+  useEffect(() => {
+    client.fetch(`*[_type == "event"]{
+      title,
+      startDate,
+      endDate,
+      content,
+      topics,
+      collaboration,
+      externalLink,
+      images[]{
+        "imageUrl": image.asset->url,
+        credits
+      }
+    }`).then((data) => {
+      if (data) setEvents(data);
+    });
+  }, []);
+
+  const eventsWithStatus = addStatus(events);
   const filteredEvents =
     filter === "all"
       ? eventsWithStatus
       : eventsWithStatus.filter((event) => event.status === filter);
 
-  const formatDate = (date) => {
-    if (!date) return "Unknown";
-    return new Date(date).toLocaleDateString("en-GB");
-  };
-
   const toggleDropdown = (index) => {
-    setOpenDropdowns((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
+    setOpenDropdowns((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
   return (
     <div>
+      <Seo
+        title="Events"
+        description="Upcoming and past events at Head Digital Pool"
+        url="https://head-digital-pool.ch/events"
+      />
       <Header />
-
       <main className="main-container">
         <header>
           <select
@@ -56,16 +75,12 @@ export default function EventsPage({ events, iframeLinks }) {
             <option value="past">Past</option>
           </select>
         </header>
-
         <div>
           {filteredEvents.length > 0 ? (
             filteredEvents.map((event, index) => {
               const isOpen = openDropdowns[index] || false;
-
               return (
                 <div key={index} className="event-item">
-
-                  {/* Image slider */}
                   {Array.isArray(event.images) && event.images.length > 0 && (
                     <ImgSliderWrapper
                       title={event.title}
@@ -75,50 +90,35 @@ export default function EventsPage({ events, iframeLinks }) {
                       }))}
                     />
                   )}
-
                   <div className="cours-passeport-text">
                     <h1>{event.title || "Untitled Event"}</h1>
-
                     <span>Start Date: {formatDate(event.startDate)}</span>
                     <span>End Date: {formatDate(event.endDate)}</span>
                     <span>Status: {event.status}</span>
-
-                    {/* ---- DROPDOWN ---- */}
                     <div className={`event-dropdown ${isOpen ? "open" : ""}`}>
                       <button onClick={() => toggleDropdown(index)}>
                         {isOpen ? "Close event details" : "Read more about this event"}
                       </button>
-
                       {isOpen && (
                         <div className="event-dropdown-content">
-
-                          {/* Content */}
                           {event.content && (
                             <div className="event-content">
                               <PortableText value={event.content} />
                             </div>
                           )}
-
-                          {/* Topics */}
                           {event.topics?.length > 0 && (
                             <p>
                               <strong>Topics:</strong> {event.topics.join(", ")}
                             </p>
                           )}
-
-                          {/* Collaboration */}
                           {event.collaboration && (
                             <p>
                               <strong>Collaboration:</strong> {event.collaboration}
                             </p>
                           )}
-
                         </div>
                       )}
                     </div>
-                    {/* ---- END DROPDOWN ---- */}
-
-                    {/* External Link always after dropdown */}
                     {event.externalLink && (
                       <p>
                         <a
@@ -158,26 +158,15 @@ export async function getStaticProps() {
         credits
       }
     }`);
-
-    const iframeLinks = await client.fetch(`*[_type == "iframelinks"]{
-      _id,
-      links[]{ url }
-    }`);
-
     return {
       props: {
         events: events || [],
-        iframeLinks: iframeLinks || [],
       },
-      revalidate: 60,
     };
   } catch (error) {
     console.error("Failed to fetch events:", error);
     return {
-      props: {
-        events: [],
-        iframeLinks: [],
-      },
+      props: { events: [] },
     };
   }
 }

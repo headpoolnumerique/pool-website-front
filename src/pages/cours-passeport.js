@@ -113,7 +113,6 @@ export async function getStaticProps() {
         coursPasseports: coursPasseports || [],
         iframeLinks: iframeLinks || []
       },
-      revalidate: 60,
     };
   } catch (error) {
     console.error("Failed to fetch data:", error);
