@@ -1,52 +1,68 @@
-import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import Image from "next/image";
 
-export default function Header({ toggleVisibility }) {
-
+export default function Header({ toggleVisibility, logo }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
-  console.log(router.pathname, "--");
 
-  let dynamicStyling = () => {
-    if(router.pathname === "/"){
-      return {}
-    }else{
-      return {
-        borderBottom: "1px solid black"
-      }
-    }
-  }
-  
+  const handleLogoClick = () => {
+    router.push("/").then(() => {
+      window.location.reload(); // Force full page reload
+    });
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
 
   return (
     <div className="header-container">
-      {/* Header with Navigation */}
-      <header 
-      style={dynamicStyling()}
-      className="header">
-        <div className="button-container">
-          <button onClick={toggleVisibility} className="toggle-button">
-            TOGGLE VISUALS
-          </button>
+      <header className="header">
+        <div className="logo-wrapper" onClick={handleLogoClick}>
+        <Image
+          src={logo || "/logo_pool.jpeg"}
+          alt="Logo"
+          width={100}
+          height={100}
+          style={{ cursor: "pointer" }}
+        />
         </div>
-        <nav>
+
+        {/* Hamburger button for mobile */}
+        <button className="hamburger" onClick={toggleMenu}>
+          <span className={menuOpen ? "bar open" : "bar"}></span>
+          <span className={menuOpen ? "bar open" : "bar"}></span>
+          <span className={menuOpen ? "bar open" : "bar"}></span>
+        </button>
+
+        <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
           <div>
-            <img src="./public/logo_pool.jpeg" />
+            <Link href="/cours" className="nav-link" onClick={() => setMenuOpen(false)}>
+              Cours
+            </Link>
           </div>
-          <Link href="/cours" className="nav-link">
-            Cours
-          </Link>
-          <Link href="/cours-passeport" className="nav-link">
-            Cours Passeport
-          </Link>
-          <Link href="/presentation" className="nav-link">
-            Presentation
-          </Link>
-          <Link href="/repositories" className="nav-link">
-            Repositories
-          </Link>
-          <Link href="/bookings" className="nav-link">
-            Bookings
-          </Link>
+          <div>
+            <Link href="/cours-passeport" className="nav-link" onClick={() => setMenuOpen(false)}>
+              Cours Passeport
+            </Link>
+          </div>
+          <div>
+            <Link href="/events" className="nav-link" onClick={() => setMenuOpen(false)}>
+              Events
+            </Link>
+          </div>
+          <div>
+            <Link href="/repositories" className="nav-link" onClick={() => setMenuOpen(false)}>
+              Repositories
+            </Link>
+          </div>
+          <div>
+            <Link href="/bookings" className="nav-link" onClick={() => setMenuOpen(false)}>
+              Bookings
+            </Link>
+          </div>
         </nav>
       </header>
     </div>

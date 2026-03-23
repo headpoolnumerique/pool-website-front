@@ -1,93 +1,145 @@
 import { useState } from "react";
 import Link from "next/link";
+import { PortableText } from "@portabletext/react";
 import client from "../../../sanity";
 import Header from "../navig_components/Header";
-import P5View from '../p5_canvas/P5View'; 
+import ImgSliderWrapper from "../other_components/ImgSliderWrapper";
 
-export default function CoursesIndex({ cours }) {
-  const [filter, setFilter] = useState("all"); // State to track selected filter
+// Utility to format dates consistently
+const formatDate = (dateString) => {
+  if (!dateString) return "Unknown";
+  return new Date(dateString).toLocaleDateString("en-GB"); // DD/MM/YYYY
+};
 
-  // Calculate the status dynamically based on startDate and endDate
-  const coursWithStatus = cours.map((cour) => {
-    const currentDate = new Date();
-    const startDate = new Date(cour.startDate);
-    const endDate = new Date(cour.endDate);
+export default function CoursesIndex({ cours, iframeLinks }) {
+  const [filter, setFilter] = useState("all");
+
+  // Add status field client-side
+  const coursWithStatus = cours.map((c) => {
+    const now = new Date();
+    const start = new Date(c.startDate);
+    const end = new Date(c.endDate);
 
     let status = "past";
-    if (startDate > currentDate) {
-      status = "upcoming";
-    } else if (startDate <= currentDate && endDate >= currentDate) {
-      status = "ongoing";
-    }
-    return { ...cour, status };
+    if (start > now) status = "upcoming";
+    else if (start <= now && end >= now) status = "ongoing";
+
+    return { ...c, status };
   });
 
-  // Filter courses based on the selected status
   const filteredCourses =
     filter === "all"
       ? coursWithStatus
-      : coursWithStatus.filter((cour) => cour.status === filter);
+      : coursWithStatus.filter((c) => c.status === filter);
 
   return (
-    <div className="courses-container">
+    <div>
       <Header />
-      <P5View />
+
       <main className="main-container">
-      <section className="courses-header">
+        
+        <header>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="filter-dropdown"
+          >
+            <option value="all">All</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="past">Past</option>
+          </select>
+        </header>
 
-        {/* Dropdown for filtering courses */}
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="courses-filter"
-        >
-          <option value="all">All</option>
-          <option value="upcoming">Upcoming</option>
-          <option value="ongoing">Ongoing</option>
-          <option value="past">Past</option>
-        </select>
-      </section>
+        <div className="course-main">
+          {filteredCourses.length > 0 ? (
+            filteredCourses.map((cour, index) => (
+              <div key={index} className="cours-passeport">
+                <div className="cours-passeport-wrapper">
 
-      <div className="courses-list">
-        {/* Display filtered courses */}
-        {filteredCourses.length > 0 ? (
-          filteredCourses.map((cour) => (
-            <div key={cour.slug.current} className="course-card">
-              <h2><span>{cour.title}</span></h2>
-              <p>Start Date: {new Date(cour.startDate).toLocaleDateString()}</p>
-              <p>End Date: {new Date(cour.endDate).toLocaleDateString()}</p>
-              <p>Status: {cour.status}</p>
-              <p>Topics: {cour.topics?.join(", ")}</p>
-              <Link href={`/cours/${cour.slug.current}`} className="course-link">
-                View Details
-              </Link>
-            </div>
-          ))
-        ) : (
-          <p>No courses found for the selected filter.</p>
-        )}
-      </div>
+                  {Array.isArray(cour.images) && cour.images.length > 0 && (
+                    <ImgSliderWrapper images={cour.images} title={cour.title} />
+                  )}
+
+                  <div className="cours-passeport-text">
+                    <Link href={`/cours/${cour.slug.current}`}>
+                      <h1 style={{ cursor: "pointer" }}>
+                        {cour.title || "Untitled"}
+                      </h1>
+                    </Link>
+
+                    <span>Start Date: {formatDate(cour.startDate)}</span>
+                    <span>End Date: {formatDate(cour.endDate)}</span>
+                    <span>Status: {cour.status}</span>
+
+                    {cour.content && (
+                      <div>
+                        <PortableText value={cour.content} />
+                      </div>
+                    )}
+
+                    {cour.topics && (
+                      <div>
+                        <h3>Covered topics:</h3>
+                        <ul>
+                          {cour.topics.map((topic, idx) => (
+                            <li key={idx}>{topic}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <Link
+                      href={`/cours/${cour.slug.current}`}
+                      className="course-link"
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No courses found.</p>
+          )}
+        </div>
       </main>
     </div>
   );
 }
 
 export async function getStaticProps() {
-  const query = `*[_type == "cours"]{
-    title,
-    content,
-    topics,
-    "image": image.asset->url,
-    slug,
-    startDate,
-    endDate
-  }`;
-  const cours = await client.fetch(query);
+  try {
+    const cours = await client.fetch(`*[_type == "cours"]{
+      title,
+      content,
+      topics,
+      slug,
+      startDate,
+      endDate,
+      "images": images[].image.asset->url
+    }`);
 
-  return {
-    props: {
-      cours: cours || [], // Fallback to empty array
-    },
-    revalidate: 60, // ISR
-  };
+    // ✅ Normalize query to match your other pages
+    const iframeLinks = await client.fetch(`*[_type == "iframelinks"]{
+      _id,
+      links[]{ url }
+    }`);
+
+    return {
+      props: {
+        cours: cours || [],
+        iframeLinks: iframeLinks || [],
+      },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    return {
+      props: {
+        cours: [],
+        iframeLinks: [],
+      },
+    };
+  }
 }

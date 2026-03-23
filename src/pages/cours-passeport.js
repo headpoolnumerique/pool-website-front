@@ -1,82 +1,92 @@
 import { useState } from "react";
 import { PortableText } from "@portabletext/react";
 import client from "../../sanity";
-import Header from "./navig_components/Header"
-import P5View from './p5_canvas/P5View'; // Import the new P5View component
+import Header from "./navig_components/Header";
+import ImgSliderWrapper from "./other_components/ImgSliderWrapper";
 
-export default function CoursPasseportPage({ coursPasseports }) {
-  const [filter, setFilter] = useState("all"); // State to manage the filter
+export default function CoursPasseportPage({ coursPasseports, iframeLinks }) {
+  const [filter, setFilter] = useState("all");
 
   const coursPasseportsWithStatus = coursPasseports.map((passeport) => {
-    const currentDate = new Date();
-    const startDate = new Date(passeport.startDate);
-    const endDate = new Date(passeport.endDate);
+    const now = new Date();
+    const start = new Date(passeport.startDate);
+    const end = new Date(passeport.endDate);
 
     let status = "past";
-    if (startDate > currentDate) {
-      status = "upcoming";
-    } else if (startDate <= currentDate && endDate >= currentDate) {
-      status = "ongoing";
-    }
+    if (start > now) status = "upcoming";
+    else if (start <= now && end >= now) status = "ongoing";
 
     return { ...passeport, status };
   });
 
-  // Filter the coursPasseports based on the selected filter
   const filteredPasseports =
     filter === "all"
       ? coursPasseportsWithStatus
-      : coursPasseportsWithStatus.filter((passeport) => passeport.status === filter);
+      : coursPasseportsWithStatus.filter((p) => p.status === filter);
+
+  const formatDate = (date) => {
+    if (!date) return "Unknown";
+    return new Date(date).toLocaleDateString("en-GB");
+  };
 
   return (
     <div>
       <Header />
-      <P5View />
-      <main className="main-container">
-      <header>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="filter-dropdown"
-        >
-          <option value="all">All</option>
-          <option value="upcoming">Upcoming</option>
-          <option value="ongoing">Ongoing</option>
-          <option value="past">Past</option>
-        </select>
-      </header>
 
-      <div className="cours-passeport-main">
-        {/* Map over the filtered array and render each coursPasseport */}
-          {filteredPasseports.map((coursPasseport, index) => (
-            <div key={index} className="cours-passeport">
-              <h1>{coursPasseport.title || "Untitled"}</h1>
-              <span>
-                Start Date: {new Date(coursPasseport.startDate).toLocaleDateString()}
-              </span>
-              <span>
-                End Date: {new Date(coursPasseport.endDate).toLocaleDateString()}
-              </span>
-              <span>Status: {coursPasseport.status || "Unknown"}</span>
-              {/* Render block content */}
-              <div>
-                <PortableText value={coursPasseport.content || []} />
-              </div>
+      <main className="main-container-cours-pass">
 
-              {/* Render topics */}
-              {coursPasseport.topics && (
-                <div>
-                  <h3>Topics:</h3>
-                  <ul>
-                    {coursPasseport.topics.map((topic, idx) => (
-                      <li key={idx}>{topic}</li>
-                    ))}
-                  </ul>
+        <header>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="filter-dropdown"
+          >
+            <option value="all">All</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="past">Past</option>
+          </select>
+        </header>
+
+        <div className="cours-passeport-main">
+          {filteredPasseports.length > 0 ? (
+            filteredPasseports.map((passeport, index) => (
+              <div key={index} className="cours-passeport">
+                <div className="cours-passeport-wrapper">
+
+                  {Array.isArray(passeport.images) && passeport.images.length > 0 && (
+                    <ImgSliderWrapper images={passeport.images} title={passeport.title} />
+                  )}
+
+                  <div className="cours-passeport-text">
+                    <h1>{passeport.title || "Untitled"}</h1>
+
+                    <span>Start Date: {formatDate(passeport.startDate)}</span>
+                    <span>End Date: {formatDate(passeport.endDate)}</span>
+                    <span>Status: {passeport.status}</span>
+
+                    <div>
+                      <PortableText value={passeport.content || []} />
+                    </div>
+
+                    {passeport.topics && (
+                      <div>
+                        <h3>Covered topics:</h3>
+                        <ul>
+                          {passeport.topics.map((topic, idx) => (
+                            <li key={idx}>{topic}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
-      </div>
+              </div>
+            ))
+          ) : (
+            <p>No cours passeports found.</p>
+          )}
+        </div>
       </main>
     </div>
   );
@@ -89,20 +99,28 @@ export async function getStaticProps() {
       content,
       topics,
       startDate,
-      endDate
+      endDate,
+      "images": images[].image.asset->url
+    }`);
+
+    const iframeLinks = await client.fetch(`*[_type == "iframelinks"]{
+      _id,
+      links[]{ url }
     }`);
 
     return {
       props: {
-        coursPasseports: coursPasseports || [], // Fallback to empty array
+        coursPasseports: coursPasseports || [],
+        iframeLinks: iframeLinks || []
       },
-      revalidate: 60, // Enable ISR
+      revalidate: 60,
     };
   } catch (error) {
     console.error("Failed to fetch data:", error);
     return {
       props: {
         coursPasseports: [],
+        iframeLinks: []
       },
     };
   }

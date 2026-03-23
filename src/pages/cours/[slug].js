@@ -1,42 +1,46 @@
+// pages/cours/[slug].jsx
 import { useEffect, useState } from "react";
+import Head from "next/head";
+import Header from "../navig_components/Header";
 import client from "../../../sanity";
-import { PortableText } from "@portabletext/react";
 import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css";
 
-export default function CourseDetails({ course }) {
-  const [repository, setRepository] = useState([]);
+export default function CourseDetails({ course, iframeLinks }) {
+  const [repository, setRepository] = useState(null);
   const [loadingRepo, setLoadingRepo] = useState(true);
   const [readme, setReadme] = useState(null);
 
-
   useEffect(() => {
-    // Fetch GitHub repositories if course topics are defined
     const fetchRepository = async () => {
+      // If no keyword, do nothing
+      if (!course?.githubKeyword) {
+        setLoadingRepo(false);
+        return;
+      }
 
-      if (!course || !course.topics) return;
-      
       try {
-        const response = await fetch(`/api/github-pool-repo`); 
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch GitHub repositories");
-        }
-        
+        const response = await fetch(`/api/github-pool-repo`);
+        if (!response.ok) throw new Error("Failed to fetch GitHub repositories");
+
         const data = await response.json();
-        const selectedRepo = data.find((element) => element.topics.includes("socket-io"));
+
+        // Use githubKeyword from CMS
+        const selectedRepo = data.find((element) =>
+          element.topics.includes(course.githubKeyword)
+        );
+
         setRepository(selectedRepo);
 
-        if (selectedRepo && selectedRepo.full_name) {
-          const readmeResponse = await fetch(`https://api.github.com/repos/${selectedRepo.full_name}/readme`, {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_ACCESS_TOKEN}`,
-            },
-          });          
+        if (selectedRepo?.full_name) {
+          const readmeResponse = await fetch(
+            `https://raw.githubusercontent.com/${selectedRepo.owner.login}/${selectedRepo.name}/${selectedRepo.default_branch}/README.md`
+          );
 
           if (readmeResponse.ok) {
-            const readmeData = await readmeResponse.json();
-            const decodedReadme = atob(readmeData.content); // Decode Base64 content
-            setReadme(decodedReadme);
+            const readmeText = await readmeResponse.text();
+            setReadme(readmeText);
           }
         }
       } catch (error) {
@@ -48,54 +52,74 @@ export default function CourseDetails({ course }) {
     fetchRepository();
   }, [course]);
 
-  if (!course) {
-    return <div>Loading course details...</div>;
-  }
+  if (!course) return <div>Loading course details...</div>;
 
   return (
     <div>
-      <header style={{ textAlign: "center", padding: "2rem 0", borderBottom: "1px solid"}}>
-        <h1>{course.title}</h1>
-      </header>
+      <Header />
 
-      <main style={{ padding: "2rem" }}>
-        <p><strong>Status:</strong> {course.status}</p>
+      <main className="main-container">
+        
+        <div className="course-main">
+          <header>
+            <h1>{course.title}</h1>
+          </header>
 
-        {course.topics && course.topics.length > 0 && (
-          <div>
-            <h2>Topics Covered</h2>
-            <ul>
-              {course.topics.map((topic, index) => (
-                <li key={index}>{topic}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <div>
-          <h2>Course's Project Repo:</h2>
-          {loadingRepo && <p>Loading repositories...</p>}
-          {!loadingRepo && repository && (
-            <div>
-              <h3>
-                <a href={repository.html_url} target="_blank" rel="noopener noreferrer">
-                  {repository.name}
-                </a>
-              </h3>
-              <p>{repository.description}</p>
+          <p>
+            <strong>Status:</strong> {course.status}
+          </p>
+
+          {course.topics?.length > 0 && (
+            <div className="course-section">
+              <h2>Topics Covered</h2>
+              <ul>
+                {course.topics.map((topic, index) => (
+                  <li key={index}>{topic}</li>
+                ))}
+              </ul>
             </div>
           )}
-          {!loadingRepo && !repository && (
-            <p>No repositories found for the given topics.</p>
+
+          {/* Only show repo section if githubKeyword exists */}
+          {course.githubKeyword && (
+            <div className="course-section">
+              <h2>Course&apos;s Project Repo:</h2>
+              {loadingRepo && <p>Loading repository...</p>}
+              {!loadingRepo && repository && (
+                <div className="repo-card">
+                  <h3>
+                    <a
+                      href={repository.html_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {repository.name}
+                    </a>
+                  </h3>
+                  <p>{repository.description}</p>
+                </div>
+              )}
+              {!loadingRepo && !repository && (
+                <p>No repository found for the given keyword.</p>
+              )}
+            </div>
           )}
-        </div>
-        <div>
-          <ReactMarkdown>{readme}</ReactMarkdown>
+
+          {readme && (
+            <div className="course-section">
+              <h2>README:</h2>
+              <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                {readme}
+              </ReactMarkdown>
+            </div>
+          )}
         </div>
       </main>
     </div>
   );
 }
 
+// Generate static paths
 export async function getStaticPaths() {
   const query = `*[_type == "cours"]{ slug }`;
   const cours = await client.fetch(query);
@@ -110,18 +134,31 @@ export async function getStaticPaths() {
   };
 }
 
+// Fetch static props
 export async function getStaticProps({ params }) {
-  const query = `*[_type == "cours" && slug.current == $slug][0]{
+  const courseQuery = `*[_type == "cours" && slug.current == $slug][0]{
     title,
     content,
     status,
     topics,
+    githubKeyword
   }`;
 
-  const course = await client.fetch(query, { slug: params.slug });
+  const course = await client.fetch(courseQuery, { slug: params.slug });
+
+  // Fetch iframe links
+  const iframeLinks = await client.fetch(`
+    *[_type == "iframelinks"]{
+      _id,
+      links[]{ url }
+    }
+  `);
 
   return {
-    props: { course },
+    props: {
+      course,
+      iframeLinks: iframeLinks || [],
+    },
     revalidate: 60,
   };
 }
