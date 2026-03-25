@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 25.03.2026 : Step by step 
 
-## Getting Started
+## Comment lancer le front-end du Pool sur son local
 
-First, run the development server:
+1. Cloner le repository Github (`git clone ___`)
+2. Ajouter dans le root folder le fichier `.env.local` trouvable dans le Teams privé du Pool
+3. S'assure que `node v18.20.8` est installé. Si non:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install 18.20.8
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Installer les dépendances du package json (`npm install --save`)
+5. Ajouter dans le dossier `\styles` la fonte `Hermes-Regular`, format `.woff2`
+6. Commenter le `output: "export",` dans le `next.config.mjs`
+6. Lancer la commande `npm run dev`
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Comment mettre en ligne une nouvell version du front-end
 
-## Learn More
+1. Décommenter le `output: "export",` dans le `next.config.mjs`
+2. Lancer la commande `npm run build`
+3. Mettre le contenu du fichier `/out`sur le serveur Infomaniak, de préférence en utilisant la méthode `rsync`: 
 
-To learn more about Next.js, take a look at the following resources:
+```
+rsync -avz --delete ./out/ [identifiant ssh]:~/sites/head-digital-pool.ch
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

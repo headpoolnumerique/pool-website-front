@@ -53,11 +53,11 @@ export default function Header({ toggleVisibility, logo }) {
               Events
             </Link>
           </div>
-          <div>
+          {/* <div>
             <Link href="/repositories" className="nav-link" onClick={() => setMenuOpen(false)}>
               Repositories
             </Link>
-          </div>
+          </div> */}
           <div>
             <Link href="/bookings" className="nav-link" onClick={() => setMenuOpen(false)}>
               Bookings
