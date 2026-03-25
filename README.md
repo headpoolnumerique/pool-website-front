@@ -2,7 +2,13 @@
 
 ## Comment lancer le front-end du Pool sur son local
 
-1. Cloner le repository Github (`git clone ___`)
+1. Cloner le repository Github 
+
+```
+git clone https://github.com/headpoolnumerique/pool-website-front.git
+git checkout main
+```
+
 2. Ajouter dans le root folder le fichier `.env.local` trouvable dans le Teams privé du Pool
 3. S'assure que `node v18.20.8` est installé. Si non:
 
@@ -25,5 +31,14 @@ nvm install 18.20.8
 
 ```
 rsync -avz --delete ./out/ [identifiant ssh]:~/sites/head-digital-pool.ch
+```
+
+4. Ne pas oublier de pousser la nouvelle version du code dans le Github commun:
+
+```
+git add.
+Git commit -m "[Nature du changement ici]"
+Git push origin main
+
 ```
 
