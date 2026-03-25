@@ -42,3 +42,10 @@ Git push origin main
 
 ```
 
+## Comment ajouter des repositories Github dans la page `/repositories`
+
+1. Dans la section `About` du repo Github, cliquer sur la mollette (`Edit repository details`)
+2. Dans les `Topics`, ajouter le mot clé `digitalpoolhead`
+3. Clicker sur `Save changes` 
+
+
