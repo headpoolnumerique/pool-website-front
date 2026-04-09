@@ -33,7 +33,7 @@ nvm install 18.20.8
 rsync -avz --delete ./out/ [identifiant ssh]:~/sites/head-digital-pool.ch
 ```
 
-4. Ajouter manuellement via le webFTP un `.env.local` avec le `GITHUB_TOKEN=xxx`trouvable dans le fichier téléchargé depuis le TEAMS. S'assurer de la bonne nomenclature (GITHUB_TOKEN).
+4. Ajouter manuellement via le webFTP un `.env.local` avec le `GITHUB_TOKEN=xxx` trouvable dans le fichier téléchargé depuis le TEAMS.
 
 5. Ajouter manuellement le fichier `github-repos.php`
 

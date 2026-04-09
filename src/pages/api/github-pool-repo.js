@@ -1,8 +1,8 @@
 export default async function handler(req, res) {
-    const { NEXT_PUBLIC_GITHUB_ACCESS_TOKEN } = process.env;
+    const { GITHUB_TOKEN } = process.env;
 
 
-  if (!NEXT_PUBLIC_GITHUB_ACCESS_TOKEN) {
+  if (!GITHUB_TOKEN) {
     return res.status(500).json({ message: 'Access token is missing' });
   }
   
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     try {
       const response = await fetch('https://api.github.com/orgs/headpoolnumerique/repos', {
         headers: {
-          Authorization: `Bearer ${NEXT_PUBLIC_GITHUB_ACCESS_TOKEN}`,
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
         },
       });
   
