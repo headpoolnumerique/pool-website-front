@@ -19,7 +19,9 @@ export default function Repositories() {
   useEffect(() => {
     const fetchRepositories = async () => {
       try {
-        const response = await fetch("/api/github-pool-repo");
+        // Local: uses /api/github-pool-repo | Production: uses the PHP proxy
+        const apiUrl = process.env.NEXT_PUBLIC_GITHUB_PROXY_URL || "/api/github-pool-repo";
+        const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
         const data = await response.json();
         setRepositories(data);
@@ -82,7 +84,6 @@ export default function Repositories() {
   );
 }
 
-// No getStaticProps needed — all data is fetched client-side
 export async function getStaticProps() {
   return { props: {} };
 }

@@ -1,0 +1,18 @@
+Options -MultiViews
+RewriteEngine On
+
+# Handle root-level pages (e.g. /repositories → /repositories.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI}.html -f
+RewriteRule ^(.+)$ /$1.html [L,QSA]
+
+# Handle nested pages without trailing slash (e.g. /cours → /cours/cours.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)$ /$1/$1.html [L,QSA]
+
+# Handle nested pages with trailing slash (e.g. /cours/ → /cours/cours.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/$ /$1/$1.html [L,QSA]

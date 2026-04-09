@@ -9,7 +9,7 @@ git clone https://github.com/headpoolnumerique/pool-website-front.git
 git checkout main
 ```
 
-2. Ajouter dans le root folder le fichier `.env.local` trouvable dans le Teams privé du Pool
+2. Ajouter dans le root folder les fichier `.env.local` et `.env.production` trouvable dans le Teams privé du Pool
 3. S'assure que `node v18.20.8` est installé. Si non:
 
 ```
@@ -33,7 +33,11 @@ nvm install 18.20.8
 rsync -avz --delete ./out/ [identifiant ssh]:~/sites/head-digital-pool.ch
 ```
 
-4. Ne pas oublier de pousser la nouvelle version du code dans le Github commun:
+4. Ajouter manuellement via le webFTP un `.env.local` avec le `GITHUB_TOKEN=xxx`trouvable dans le fichier téléchargé depuis le TEAMS. S'assurer de la bonne nomenclature (GITHUB_TOKEN).
+
+5. Ajouter manuellement le fichier `github-repos.php`
+
+6. Ne pas oublier de pousser la nouvelle version du code dans le Github commun:
 
 ```
 git add.
