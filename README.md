@@ -35,7 +35,7 @@ rsync -avz --delete ./out/ [identifiant ssh]:~/sites/head-digital-pool.ch
 
 4. Ajouter manuellement via le webFTP un `.env.local` avec le `GITHUB_TOKEN=xxx` trouvable dans le fichier téléchargé depuis le TEAMS.
 
-5. Ajouter manuellement le fichier `github-repos.php`
+5. Ajouter manuellement le fichier `github-repos.php` et le fichier `.htaccess`
 
 6. Ne pas oublier de pousser la nouvelle version du code dans le Github commun:
 
